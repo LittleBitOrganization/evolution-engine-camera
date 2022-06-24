@@ -27,14 +27,14 @@ namespace LittleBit.Modules.CameraModule
         private float _zLower;
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
-            GameObject cameraTarget, Collider cameraBounds, CameraConfig cameraConfig)
+            Transform cameraTarget, Collider cameraBounds, CameraConfig cameraConfig)
         {
             _camera = camera;
             _virtualCamera = virtualCamera;
             _touchInputService = touchInputService;
             _cameraBounds = cameraBounds;
             _cameraConfig = cameraConfig;
-            _cameraTarget = cameraTarget.transform;
+            _cameraTarget = cameraTarget;
 
             _transposer = _virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
             _recomposer = _virtualCamera.GetComponentInChildren<CinemachineRecomposer>();
