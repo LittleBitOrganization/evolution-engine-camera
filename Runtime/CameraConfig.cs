@@ -8,7 +8,7 @@ namespace LittleBit.Modules.CameraModule
     {
         public event Action OnConfigUpdate;
         
-        [SerializeField] private float _xAngle = 0;
+        [SerializeField] private float _xAngle = 30f;
         [SerializeField] private float _yAngle = 0;
         [SerializeField] private float _zAngle = 0;
 
@@ -17,10 +17,10 @@ namespace LittleBit.Modules.CameraModule
         [SerializeField, Range(0,1)] private float _zoomScale = 1f;
         
         [SerializeField] private float _xOffset = 0;
-        [SerializeField] private float _yOffset = 0;
-        [SerializeField] private float _zOffset = 0;
+        [SerializeField] private float _yOffset = 20f;
+        [SerializeField] private float _zOffset = -25f;
 
-        [SerializeField] protected float _distance = 0;
+        [SerializeField] protected float _distance = 10f;
 
 
         public float XAngle => _xAngle;

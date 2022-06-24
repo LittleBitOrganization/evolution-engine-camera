@@ -33,17 +33,6 @@ namespace LittleBit.Modules.CameraModule
                 .NonLazy();
             
             Container
-                .Bind<CameraConfig>()
-                .FromInstance(_cameraConfig)
-                .AsSingle()
-                .NonLazy();
-            
-            Container
-                .Bind<TouchInputService>()
-                .AsSingle()
-                .NonLazy();
-            
-            Container
                 .Bind<Transform>()
                 .FromInstance(_cameraTarget)
                 .AsSingle()
@@ -55,6 +44,12 @@ namespace LittleBit.Modules.CameraModule
                 .AsSingle()
                 .NonLazy();
             
+            Container
+                .Bind<CameraConfig>()
+                .FromInstance(_cameraConfig)
+                .AsSingle()
+                .NonLazy();
+
             Container
                 .BindInterfacesAndSelfTo<CameraService>()
                 .AsSingle()
