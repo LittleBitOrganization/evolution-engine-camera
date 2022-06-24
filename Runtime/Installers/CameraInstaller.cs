@@ -1,10 +1,9 @@
 ﻿using Cinemachine;
-using Infrastructure.Services;
 using LittleBit.Modules.TouchInput;
 using UnityEngine;
 using Zenject;
 
-namespace Infrastructure.Installers
+namespace LittleBit.Modules.CameraModule
 {
     public class CameraInstaller  : MonoInstaller
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Infrastructure
+namespace LittleBit.Modules.CameraModule
 {
     [CreateAssetMenu(fileName = "CameraConfig", menuName = "Configs/Camera Config", order = 0)]
     public class CameraConfig : ScriptableObject
@@ -16,7 +16,6 @@ namespace Infrastructure
         
         [SerializeField, Range(0,1)] private float _zoomScale = 1f;
         
-        [Header("Recomposer settings")]
         [SerializeField] private float _xOffset = 0;
         [SerializeField] private float _yOffset = 0;
         [SerializeField] private float _zOffset = 0;

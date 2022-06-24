@@ -3,7 +3,7 @@ using LittleBit.Modules.TouchInput;
 using UnityEngine;
 using Zenject;
 
-namespace Infrastructure.Services
+namespace LittleBit.Modules.CameraModule
 {
     public class CameraService : IInitializable
     {
