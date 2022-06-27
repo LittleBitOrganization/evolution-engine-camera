@@ -43,27 +43,31 @@ namespace LittleBit.Modules.CameraModule
         public void Initialize()
         {
             SubscribeOnTouchInputEvents();
-            _cameraConfig.OnConfigUpdate += UpdateCamParameters;
+            UpdateCamParameters();
+        }
+
+        private Vector3 CalculateDistance(float distance)
+        {
+            var direction = Quaternion.Euler(_cameraConfig.CameraAngles) * Vector3.forward;
+
+            return direction * distance;
         }
 
         private void UpdateCamParameters()
         {
-            _recomposer.m_Tilt = _cameraConfig.XAngle;
-            _recomposer.m_Pan = _cameraConfig.YAngle;
-            _recomposer.m_Dutch = _cameraConfig.ZAngle;
+            _recomposer.m_Tilt = _cameraConfig.CameraAngles.x;
+            _recomposer.m_Pan = _cameraConfig.CameraAngles.y;
+            _recomposer.m_Dutch = _cameraConfig.CameraAngles.z;
 
             _recomposer.m_FollowAttachment = _cameraConfig.FollowSmooth;
             _recomposer.m_ZoomScale = _cameraConfig.ZoomScale;
 
-            _transposer.m_TrackedObjectOffset =
-                new Vector3(_cameraConfig.XOffset, _cameraConfig.YOffset, _cameraConfig.ZOffset);
-
-            _transposer.m_CameraDistance = _cameraConfig.Distance;
+            _transposer.m_TrackedObjectOffset = CalculateDistance(-_cameraConfig.Distance);
         }
 
         private void SubscribeOnTouchInputEvents()
         {
-            //_touchInputService.OnInputClick += OnClick;
+            _touchInputService.OnInputClick += OnClick;
             _touchInputService.OnDragStart += OnDragStart;
             _touchInputService.OnDragUpdate += OnDragUpdate;
             _touchInputService.OnDragStop += OnDragStop;
