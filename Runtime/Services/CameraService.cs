@@ -27,7 +27,6 @@ namespace LittleBit.Modules.CameraModule
         private float _zLower;
         private float _currZoom;
         private float _startPitchDistance;
-        private bool _isPitch;
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
             Transform cameraTarget, Collider cameraBounds, CameraConfig cameraConfig)
@@ -66,8 +65,8 @@ namespace LittleBit.Modules.CameraModule
 
             _recomposer.m_FollowAttachment = _cameraConfig.FollowSmooth;
             _recomposer.m_ZoomScale = _cameraConfig.ZoomScale;
-            _currZoom = _cameraConfig.Distance;
-            _transposer.m_TrackedObjectOffset = CalculateDistance(_cameraConfig.Distance);
+            _currZoom = _cameraConfig.MaxDistance;
+            _transposer.m_TrackedObjectOffset = CalculateDistance(_cameraConfig.MaxDistance);
         }
 
         private void SubscribeOnTouchInputEvents()
@@ -77,7 +76,6 @@ namespace LittleBit.Modules.CameraModule
             _touchInputService.OnDragUpdate += OnDragUpdate;
             _touchInputService.OnDragStop += OnDragStop;
 #if UNITY_EDITOR || UNITY_STANDALONE
-
             _touchInputService.OnMouseZoom += OnVirtualZoom;
 #endif
 #if UNITY_IPHONE || UNITY_ANDROID
@@ -95,15 +93,13 @@ namespace LittleBit.Modules.CameraModule
             switch (_cameraConfig.LensType)
             {
                 case LensSettings.OverrideModes.Perspective:
-                    maxDistance = _cameraConfig.Distance;
-                    minDistance = 5f;
+                    maxDistance = _cameraConfig.MaxDistance;
                     _currZoom += -mouseDelta * 5f;
                     _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
                     _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
                     break;
                 case LensSettings.OverrideModes.Orthographic:
                     maxDistance = _cameraConfig.LensSize;
-                    minDistance = 5f;
                     _currZoom += -mouseDelta * 5f;
                     _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
                     _virtualCamera.m_Lens.OrthographicSize = _currZoom;
@@ -118,28 +114,36 @@ namespace LittleBit.Modules.CameraModule
 
         private void OnPinchUpdate(PinchUpdateData pinchupdatedata)
         {
-            var maxDistance = _cameraConfig.Distance;
-            var minDistance = 5f;
-            var difference = _startPitchDistance - pinchupdatedata.pinchDistance;
+            float maxDistance = 0;
+            float minDistance = 5f;
+            float difference = _startPitchDistance - pinchupdatedata.pinchDistance;
+            _startPitchDistance = pinchupdatedata.pinchDistance;
             
-            //var difference = pinchupdatedata.pinchDistance;
-            //Debug.Log(difference);
-            _currZoom += difference * .3f;
-            _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
-            _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
-            //Debug.Log(_currZoom);
+            switch (_cameraConfig.LensType)
+            {
+                case LensSettings.OverrideModes.Perspective:
+                    maxDistance = _cameraConfig.MaxDistance;
+                    _currZoom += difference * _cameraConfig.PerspectiveZoomDeviceSensitivity;
+                    _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
+                    _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
+                    break;
+                case LensSettings.OverrideModes.Orthographic:
+                    maxDistance = _cameraConfig.LensSize;
+                    _currZoom += difference * _cameraConfig.OrthographicZoomDeviceSensitivity;
+                    _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
+                    _virtualCamera.m_Lens.OrthographicSize = _currZoom;
+                    break;
+            }
         }
 
         private void OnPinchStop()
         {
-            _isPitch = false;
             _startPitchDistance = 0;
         }
 
         private void OnPinchStart(Vector3 pinchcenter, float pinchdistance)
         {
             _startPitchDistance = pinchdistance;
-            //Debug.Log(pinchdistance);
         }
 
         private void OnDragStart(Vector3 pos, bool islongtap)
