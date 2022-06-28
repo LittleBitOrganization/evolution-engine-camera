@@ -58,6 +58,8 @@ namespace LittleBit.Modules.CameraModule
 
         private void UpdateCamParameters()
         {
+            _virtualCamera.m_Lens.ModeOverride = _cameraConfig.LensType;
+            _virtualCamera.m_Lens.OrthographicSize = _cameraConfig.LensSize;
             _recomposer.m_Tilt = _cameraConfig.CameraAngles.x;
             _recomposer.m_Pan = _cameraConfig.CameraAngles.y;
             _recomposer.m_Dutch = _cameraConfig.CameraAngles.z;
@@ -87,13 +89,26 @@ namespace LittleBit.Modules.CameraModule
 
         private void OnVirtualZoom(float mouseDelta)
         {
-            var maxDistance = _cameraConfig.Distance;
-            var minDistance = 5f;
-            _currZoom += -mouseDelta * 5f;
-            _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
-            _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
-            //Debug.Log(_currZoom);
-
+            float maxDistance;
+            float minDistance = 5f;
+            
+            switch (_cameraConfig.LensType)
+            {
+                case LensSettings.OverrideModes.Perspective:
+                    maxDistance = _cameraConfig.Distance;
+                    minDistance = 5f;
+                    _currZoom += -mouseDelta * 5f;
+                    _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
+                    _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
+                    break;
+                case LensSettings.OverrideModes.Orthographic:
+                    maxDistance = _cameraConfig.LensSize;
+                    minDistance = 5f;
+                    _currZoom += -mouseDelta * 5f;
+                    _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
+                    _virtualCamera.m_Lens.OrthographicSize = _currZoom;
+                    break;
+            }
         }
 
         private void OnClick(Vector3 clickposition, bool isdoubleclick, bool islongtap)

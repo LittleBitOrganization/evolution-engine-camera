@@ -34,8 +34,9 @@ public class CameraSettings : MonoBehaviour
     
     private void UpdateCamParameters()
     {
-        Debug.Log("upd");
-        
+        //Debug.Log("upd");
+        _virtualCamera.m_Lens.ModeOverride = _cameraConfig.LensType;
+        _virtualCamera.m_Lens.OrthographicSize = _cameraConfig.LensSize;
         _recomposer.m_Tilt = _cameraConfig.CameraAngles.x;
         _recomposer.m_Pan = _cameraConfig.CameraAngles.y;
         _recomposer.m_Dutch = _cameraConfig.CameraAngles.z;
