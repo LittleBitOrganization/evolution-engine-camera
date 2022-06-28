@@ -25,6 +25,9 @@ namespace LittleBit.Modules.CameraModule
         private float _xLower;
         private float _zUpper;
         private float _zLower;
+        private float _currZoom;
+        private float _startPitchDistance;
+        private bool _isPitch;
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
             Transform cameraTarget, Collider cameraBounds, CameraConfig cameraConfig)
@@ -50,7 +53,7 @@ namespace LittleBit.Modules.CameraModule
         {
             var direction = Quaternion.Euler(_cameraConfig.CameraAngles) * Vector3.forward;
 
-            return direction * distance;
+            return direction * -distance;
         }
 
         private void UpdateCamParameters()
@@ -61,8 +64,8 @@ namespace LittleBit.Modules.CameraModule
 
             _recomposer.m_FollowAttachment = _cameraConfig.FollowSmooth;
             _recomposer.m_ZoomScale = _cameraConfig.ZoomScale;
-
-            _transposer.m_TrackedObjectOffset = CalculateDistance(-_cameraConfig.Distance);
+            _currZoom = _cameraConfig.Distance;
+            _transposer.m_TrackedObjectOffset = CalculateDistance(_cameraConfig.Distance);
         }
 
         private void SubscribeOnTouchInputEvents()
@@ -71,9 +74,26 @@ namespace LittleBit.Modules.CameraModule
             _touchInputService.OnDragStart += OnDragStart;
             _touchInputService.OnDragUpdate += OnDragUpdate;
             _touchInputService.OnDragStop += OnDragStop;
-            // _touchInputService.OnPinchStart += OnPinchStart;
-            // _touchInputService.OnPinchStop += OnPinchStop;
-            // _touchInputService.OnPinchUpdateExtended += OnPinchUpdate;
+#if UNITY_EDITOR || UNITY_STANDALONE
+
+            _touchInputService.OnMouseZoom += OnVirtualZoom;
+#endif
+#if UNITY_IPHONE || UNITY_ANDROID
+            _touchInputService.OnPinchStart += OnPinchStart;
+            _touchInputService.OnPinchStop += OnPinchStop;
+            _touchInputService.OnPinchUpdateExtended += OnPinchUpdate;
+#endif
+        }
+
+        private void OnVirtualZoom(float mouseDelta)
+        {
+            var maxDistance = _cameraConfig.Distance;
+            var minDistance = 5f;
+            _currZoom += -mouseDelta * 5f;
+            _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
+            _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
+            //Debug.Log(_currZoom);
+
         }
 
         private void OnClick(Vector3 clickposition, bool isdoubleclick, bool islongtap)
@@ -83,17 +103,28 @@ namespace LittleBit.Modules.CameraModule
 
         private void OnPinchUpdate(PinchUpdateData pinchupdatedata)
         {
+            var maxDistance = _cameraConfig.Distance;
+            var minDistance = 5f;
+            var difference = _startPitchDistance - pinchupdatedata.pinchDistance;
             
+            //var difference = pinchupdatedata.pinchDistance;
+            //Debug.Log(difference);
+            _currZoom += difference * .3f;
+            _currZoom = Mathf.Clamp(_currZoom, minDistance, maxDistance);
+            _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
+            //Debug.Log(_currZoom);
         }
 
         private void OnPinchStop()
         {
-            
+            _isPitch = false;
+            _startPitchDistance = 0;
         }
 
         private void OnPinchStart(Vector3 pinchcenter, float pinchdistance)
         {
-            
+            _startPitchDistance = pinchdistance;
+            //Debug.Log(pinchdistance);
         }
 
         private void OnDragStart(Vector3 pos, bool islongtap)
