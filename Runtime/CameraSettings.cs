@@ -42,9 +42,8 @@ public class CameraSettings : MonoBehaviour
         _recomposer.m_Dutch = _cameraConfig.CameraAngles.z;
 
         _recomposer.m_FollowAttachment = _cameraConfig.FollowSmooth;
-        _recomposer.m_ZoomScale = _cameraConfig.ZoomScale;
 
-        _transposer.m_TrackedObjectOffset = CalculateDistance(-_cameraConfig.Distance);
+        _transposer.m_TrackedObjectOffset = CalculateDistance(-_cameraConfig.MaxDistance);
 
         _cameraBounds.center = _cameraConfig.CenterBounds;
         _cameraBounds.size = _cameraConfig.SizeBounds;

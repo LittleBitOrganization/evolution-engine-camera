@@ -18,7 +18,11 @@ namespace LittleBit.Modules.CameraModule
         
         [SerializeField, Range(0,1)] private float _zoomScale = 1f;
 
-        [SerializeField] protected float _distance = 10f;
+        [SerializeField] private float _perspectiveZoomDeviceSensitivity = 30f;
+        [SerializeField] private float _orthographicZoomDeviceSensitivity = 20f;
+
+        [SerializeField] protected float _MinDistance = 5f;
+        [SerializeField] protected float _MaxDistance = 10f;
 
         [SerializeField] private Vector3 _centerBounds = new Vector3(0, 15f, 0);
         [SerializeField] private Vector3 _sizeBounds = new Vector3(60f, 30f, 60f);
@@ -31,10 +35,13 @@ namespace LittleBit.Modules.CameraModule
         
         public float FollowSmooth => _followSmooth;
         public float ZoomScale => _zoomScale;
+        public float PerspectiveZoomDeviceSensitivity => _perspectiveZoomDeviceSensitivity;
+        public float OrthographicZoomDeviceSensitivity => _orthographicZoomDeviceSensitivity;
         public Vector3 CenterBounds => _centerBounds;
         public Vector3 SizeBounds => _sizeBounds;
         
-        public float Distance => _distance;
+        public float MaxDistance => _MaxDistance;
+        public float MinDistance => _MinDistance;
 
         private void OnValidate()
         {
