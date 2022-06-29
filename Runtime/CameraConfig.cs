@@ -1,5 +1,4 @@
-﻿using System;
-using Cinemachine;
+﻿using Cinemachine;
 using UnityEngine;
 
 namespace LittleBit.Modules.CameraModule
@@ -7,8 +6,6 @@ namespace LittleBit.Modules.CameraModule
     [CreateAssetMenu(fileName = "CameraConfig", menuName = "Configs/Camera Config", order = 0)]
     public class CameraConfig : ScriptableObject
     {
-        public event Action OnConfigUpdate;
-
         [SerializeField] private LensSettings.OverrideModes _lensType = LensSettings.OverrideModes.Perspective;
         [SerializeField] private float _lensSize = 20f;
         
@@ -42,10 +39,5 @@ namespace LittleBit.Modules.CameraModule
         
         public float MaxDistance => _MaxDistance;
         public float MinDistance => _MinDistance;
-
-        private void OnValidate()
-        {
-            OnConfigUpdate?.Invoke();
-        }
     }
 }

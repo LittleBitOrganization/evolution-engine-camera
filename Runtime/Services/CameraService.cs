@@ -1,16 +1,17 @@
-﻿using Cinemachine;
+﻿using System;
+using Cinemachine;
 using LittleBit.Modules.TouchInput;
 using UnityEngine;
-using Zenject;
+using DG.Tweening;
 
 namespace LittleBit.Modules.CameraModule
 {
-    public class CameraService : IInitializable
+    public class CameraService : IDisposable
     {
         private readonly Camera _camera;
         private readonly CinemachineVirtualCamera _virtualCamera;
         private readonly TouchInputService _touchInputService;
-        private readonly Collider _cameraBounds;
+        private readonly BoxCollider _cameraBounds;
         private readonly CameraConfig _cameraConfig;
         private readonly Transform _cameraTarget;
         private readonly CinemachineFramingTransposer _transposer;
@@ -29,7 +30,7 @@ namespace LittleBit.Modules.CameraModule
         private float _startPitchDistance;
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
-            Transform cameraTarget, Collider cameraBounds, CameraConfig cameraConfig)
+            Transform cameraTarget, BoxCollider cameraBounds, CameraConfig cameraConfig)
         {
             _camera = camera;
             _virtualCamera = virtualCamera;
@@ -40,12 +41,38 @@ namespace LittleBit.Modules.CameraModule
 
             _transposer = _virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
             _recomposer = _virtualCamera.GetComponentInChildren<CinemachineRecomposer>();
-        }
-
-        public void Initialize()
-        {
+            
             SubscribeOnTouchInputEvents();
             UpdateCamParameters();
+        }
+        
+        public void SetZoom(float value)
+        {
+            float zoomValue = 0;
+            switch (_cameraConfig.LensType)
+            {
+                case LensSettings.OverrideModes.Perspective:
+                    zoomValue = Mathf.Lerp(_cameraConfig.MinDistance, _cameraConfig.MaxDistance, value);
+                    break;
+                case LensSettings.OverrideModes.Orthographic:
+                    zoomValue = Mathf.Lerp(_cameraConfig.MinDistance, _cameraConfig.LensSize, value);
+                    break;
+            }
+            
+            DOTween.To(() => _currZoom, x => _currZoom = x, zoomValue, 1)
+                .OnUpdate(() =>
+                {
+                    Debug.Log(_currZoom);
+                    switch (_cameraConfig.LensType)
+                    {
+                        case LensSettings.OverrideModes.Perspective:
+                            _transposer.m_TrackedObjectOffset = CalculateDistance(_currZoom);
+                            break;
+                        case LensSettings.OverrideModes.Orthographic:
+                            _virtualCamera.m_Lens.OrthographicSize = _currZoom;
+                            break;
+                    }
+                });
         }
 
         private Vector3 CalculateDistance(float distance)
@@ -65,8 +92,19 @@ namespace LittleBit.Modules.CameraModule
 
             _recomposer.m_FollowAttachment = _cameraConfig.FollowSmooth;
             _recomposer.m_ZoomScale = _cameraConfig.ZoomScale;
-            _currZoom = _cameraConfig.MaxDistance;
+            switch (_cameraConfig.LensType)
+            {
+                case LensSettings.OverrideModes.Perspective:
+                    _currZoom = _cameraConfig.MaxDistance;
+                    break;
+                case LensSettings.OverrideModes.Orthographic:
+                    _currZoom = _cameraConfig.LensSize;
+                    break;
+            }
             _transposer.m_TrackedObjectOffset = CalculateDistance(_cameraConfig.MaxDistance);
+            
+            _cameraBounds.center = _cameraConfig.CenterBounds;
+            _cameraBounds.size = _cameraConfig.SizeBounds;
         }
 
         private void SubscribeOnTouchInputEvents()
@@ -87,8 +125,8 @@ namespace LittleBit.Modules.CameraModule
 
         private void OnVirtualZoom(float mouseDelta)
         {
-            float maxDistance;
-            float minDistance = 5f;
+            float maxDistance = 0;
+            float minDistance = _cameraConfig.MinDistance;
             
             switch (_cameraConfig.LensType)
             {
@@ -115,7 +153,7 @@ namespace LittleBit.Modules.CameraModule
         private void OnPinchUpdate(PinchUpdateData pinchupdatedata)
         {
             float maxDistance = 0;
-            float minDistance = 5f;
+            float minDistance = _cameraConfig.MinDistance;
             float difference = _startPitchDistance - pinchupdatedata.pinchDistance;
             _startPitchDistance = pinchupdatedata.pinchDistance;
             
@@ -207,6 +245,18 @@ namespace LittleBit.Modules.CameraModule
             var zCenter = bounds.center.z;
             _zUpper = zCenter + zHalfExtents;
             _zLower = zCenter - zHalfExtents;
+        }
+
+        public void Dispose()
+        {
+            _touchInputService.OnInputClick -= OnClick;
+            _touchInputService.OnDragStart -= OnDragStart;
+            _touchInputService.OnDragUpdate -= OnDragUpdate;
+            _touchInputService.OnDragStop -= OnDragStop;
+            _touchInputService.OnMouseZoom -= OnVirtualZoom;
+            _touchInputService.OnPinchStart -= OnPinchStart;
+            _touchInputService.OnPinchStop -= OnPinchStop;
+            _touchInputService.OnPinchUpdateExtended -= OnPinchUpdate;
         }
     }
 }

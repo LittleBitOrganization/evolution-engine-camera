@@ -1,5 +1,4 @@
-﻿using System;
-using Cinemachine;
+﻿using Cinemachine;
 using LittleBit.Modules.CameraModule;
 using UnityEngine;
 
@@ -34,7 +33,6 @@ public class CameraSettings : MonoBehaviour
     
     private void UpdateCamParameters()
     {
-        //Debug.Log("upd");
         _virtualCamera.m_Lens.ModeOverride = _cameraConfig.LensType;
         _virtualCamera.m_Lens.OrthographicSize = _cameraConfig.LensSize;
         _recomposer.m_Tilt = _cameraConfig.CameraAngles.x;
