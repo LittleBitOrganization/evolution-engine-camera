@@ -43,7 +43,30 @@ namespace LittleBit.Modules.CameraModule
             _recomposer = _virtualCamera.GetComponentInChildren<CinemachineRecomposer>();
             
             SubscribeOnTouchInputEvents();
+            UnSubscribeOnTouchInputEvents();
             UpdateCamParameters();
+        }
+
+        private void UnSubscribeOnTouchInputEvents()
+        {
+            _touchInputService.OnInputClick -= OnClick;
+            _touchInputService.OnDragStart -= OnDragStart;
+            _touchInputService.OnDragUpdate -= OnDragUpdate;
+            _touchInputService.OnDragStop -= OnDragStop;
+            _touchInputService.OnMouseZoom -= OnVirtualZoom;
+            _touchInputService.OnPinchStart -= OnPinchStart;
+            _touchInputService.OnPinchStop -= OnPinchStop;
+            _touchInputService.OnPinchUpdateExtended -= OnPinchUpdate;
+        }
+
+        public void DisableCam()
+        {
+            UnSubscribeOnTouchInputEvents();
+        }
+
+        public void EnableCam()
+        {
+            SubscribeOnTouchInputEvents();
         }
         
         public void SetZoom(float value)
@@ -249,14 +272,7 @@ namespace LittleBit.Modules.CameraModule
 
         public void Dispose()
         {
-            _touchInputService.OnInputClick -= OnClick;
-            _touchInputService.OnDragStart -= OnDragStart;
-            _touchInputService.OnDragUpdate -= OnDragUpdate;
-            _touchInputService.OnDragStop -= OnDragStop;
-            _touchInputService.OnMouseZoom -= OnVirtualZoom;
-            _touchInputService.OnPinchStart -= OnPinchStart;
-            _touchInputService.OnPinchStop -= OnPinchStop;
-            _touchInputService.OnPinchUpdateExtended -= OnPinchUpdate;
+            UnSubscribeOnTouchInputEvents();
         }
     }
 }
