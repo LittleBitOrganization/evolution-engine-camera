@@ -43,7 +43,6 @@ namespace LittleBit.Modules.CameraModule
             _recomposer = _virtualCamera.GetComponentInChildren<CinemachineRecomposer>();
             
             SubscribeOnTouchInputEvents();
-            UnSubscribeOnTouchInputEvents();
             UpdateCamParameters();
         }
 
