@@ -40,6 +40,10 @@ public class CameraSettings : MonoBehaviour
         _recomposer.m_Dutch = _cameraConfig.CameraAngles.z;
 
         _recomposer.m_FollowAttachment = _cameraConfig.FollowSmooth;
+        
+        _transposer.m_XDamping = _cameraConfig.Damping;
+        _transposer.m_YDamping = _cameraConfig.Damping;
+        _transposer.m_ZDamping = _cameraConfig.Damping;
 
         _transposer.m_TrackedObjectOffset = CalculateDistance(-_cameraConfig.MaxDistance);
 

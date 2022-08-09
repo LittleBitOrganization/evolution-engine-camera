@@ -6,7 +6,7 @@ using DG.Tweening;
 
 namespace LittleBit.Modules.CameraModule
 {
-    public class CameraService : IDisposable
+public class CameraService : IDisposable
     {
         private readonly Camera _camera;
         private readonly CinemachineVirtualCamera _virtualCamera;
@@ -28,9 +28,10 @@ namespace LittleBit.Modules.CameraModule
         private float _zLower;
         private float _currZoom;
         private float _startPitchDistance;
+        private Vector3 _start;
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
-            Transform cameraTarget, BoxCollider cameraBounds, CameraConfig cameraConfig)
+                             Transform cameraTarget, BoxCollider cameraBounds, CameraConfig cameraConfig)
         {
             _camera = camera;
             _virtualCamera = virtualCamera;
@@ -108,12 +109,19 @@ namespace LittleBit.Modules.CameraModule
         {
             _virtualCamera.m_Lens.ModeOverride = _cameraConfig.LensType;
             _virtualCamera.m_Lens.OrthographicSize = _cameraConfig.LensSize;
+            
             _recomposer.m_Tilt = _cameraConfig.CameraAngles.x;
             _recomposer.m_Pan = _cameraConfig.CameraAngles.y;
             _recomposer.m_Dutch = _cameraConfig.CameraAngles.z;
 
             _recomposer.m_FollowAttachment = _cameraConfig.FollowSmooth;
+            
+            _transposer.m_XDamping = _cameraConfig.Damping;
+            _transposer.m_YDamping = _cameraConfig.Damping;
+            _transposer.m_ZDamping = _cameraConfig.Damping;
+            
             _recomposer.m_ZoomScale = _cameraConfig.ZoomScale;
+            
             switch (_cameraConfig.LensType)
             {
                 case LensSettings.OverrideModes.Perspective:
@@ -144,6 +152,7 @@ namespace LittleBit.Modules.CameraModule
             _touchInputService.OnPinchUpdateExtended += OnPinchUpdate;
 #endif
         }
+
 
         private void OnVirtualZoom(float mouseDelta)
         {

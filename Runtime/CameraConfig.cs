@@ -11,7 +11,8 @@ namespace LittleBit.Modules.CameraModule
         
         [SerializeField] private Vector3 _cameraAngles = new Vector3(30f, 0, 0);
 
-        [SerializeField, Range(0,1)] private float _followSmooth = .4f;
+        [SerializeField, Range(0,0.999f)] private float _followSmooth = .4f;
+        [SerializeField, Range(0,20)] private float _damping = 1;
         
         [SerializeField, Range(0,1)] private float _zoomScale = 1f;
 
@@ -31,6 +32,7 @@ namespace LittleBit.Modules.CameraModule
         public Vector3 CameraAngles => _cameraAngles;
         
         public float FollowSmooth => _followSmooth;
+        public float Damping => _damping;
         public float ZoomScale => _zoomScale;
         public float PerspectiveZoomDeviceSensitivity => _perspectiveZoomDeviceSensitivity;
         public float OrthographicZoomDeviceSensitivity => _orthographicZoomDeviceSensitivity;

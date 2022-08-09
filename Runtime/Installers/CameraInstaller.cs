@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using LittleBit.Modules.TouchInput;
 using UnityEngine;
 using Zenject;
 
@@ -11,7 +12,9 @@ namespace LittleBit.Modules.CameraModule
         [SerializeField] private Transform _cameraTarget;
         [SerializeField] private BoxCollider _cameraBounds;
         [SerializeField] private CameraConfig _cameraConfig;
-    
+        [SerializeField]private TouchInputBehavior _touchBeh;
+        [SerializeField]private ScriptableObject _touchConfig;
+
         public override void InstallBindings()
         {
             BindCamera();
@@ -46,6 +49,23 @@ namespace LittleBit.Modules.CameraModule
             Container
                 .Bind<CameraConfig>()
                 .FromInstance(_cameraConfig)
+                .AsSingle()
+                .NonLazy();
+
+            Container
+                .Bind<TouchInputBehavior>()
+                .FromInstance(_touchBeh)
+                .AsSingle()
+                .NonLazy();
+
+            Container
+                .Bind<TouchInputConfig>()
+                .FromScriptableObject(_touchConfig)
+                .AsSingle()
+                .NonLazy();
+
+            Container
+                .Bind<TouchInputService>()
                 .AsSingle()
                 .NonLazy();
 

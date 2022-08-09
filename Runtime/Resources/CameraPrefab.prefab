@@ -270,6 +270,8 @@ MonoBehaviour:
   _cameraTarget: {fileID: 1138972009791111405}
   _cameraBounds: {fileID: 3934904270393827293}
   _cameraConfig: {fileID: 0}
+  _touchBeh: {fileID: 5848346709861892663}
+  _touchConfig: {fileID: 0}
 --- !u!114 &7883838585167431193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camera: {fileID: 6278101203099372631}
-  _cameraConfig: {fileID: 0}
+  _cameraConfig: {fileID: 11400000, guid: 12d083fbb346da74f9a814a02b908dd9, type: 2}
   _virtualCamera: {fileID: 6341905333928629271}
   _cameraBounds: {fileID: 3934904270393827293}
 --- !u!1 &6509617712984933177
