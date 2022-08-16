@@ -98,6 +98,16 @@ public class CameraService : IDisposable
                 });
         }
 
+        public void MoveToPosition(Vector3 position)
+        {
+            position.y = _cameraTarget.position.y;
+            
+            position.x = Mathf.Clamp(position.x, _xLower, _xUpper);
+            position.z = Mathf.Clamp(position.z, _zLower, _zUpper);
+
+            _cameraTarget.position = position;
+        }
+
         private Vector3 CalculateDistance(float distance)
         {
             var direction = Quaternion.Euler(_cameraConfig.CameraAngles) * Vector3.forward;
