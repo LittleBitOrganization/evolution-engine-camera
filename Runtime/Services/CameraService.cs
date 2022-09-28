@@ -45,6 +45,7 @@ public class CameraService : IDisposable
             
             SubscribeOnTouchInputEvents();
             UpdateCamParameters();
+            CheckBorders();
         }
 
         private void UnSubscribeOnTouchInputEvents()
