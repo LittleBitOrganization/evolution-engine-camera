@@ -39,6 +39,7 @@ public class CameraService : IDisposable
             _cameraBounds = cameraBounds;
             _cameraConfig = cameraConfig;
             _cameraTarget = cameraTarget;
+            _cameraConfig.Updated += UpdateCamParameters;
 
             _transposer = _virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
             _recomposer = _virtualCamera.GetComponentInChildren<CinemachineRecomposer>();
@@ -242,6 +243,7 @@ public class CameraService : IDisposable
             var end = GetPointOnPlane(dragposcurrent + correctionoffset);
 
             var difference = end - start;
+            difference *= _cameraConfig.Sensetivity;
             CheckBorders(difference);
         }
         

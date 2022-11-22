@@ -1,4 +1,5 @@
-﻿using Cinemachine;
+﻿using System;
+using Cinemachine;
 using UnityEngine;
 
 namespace LittleBit.Modules.CameraModule
@@ -24,6 +25,7 @@ namespace LittleBit.Modules.CameraModule
 
         [SerializeField] private Vector3 _centerBounds = new Vector3(0, 15f, 0);
         [SerializeField] private Vector3 _sizeBounds = new Vector3(60f, 30f, 60f);
+        [SerializeField] private float _sensetivity = 1f;
 
         public LensSettings.OverrideModes LensType => _lensType;
 
@@ -41,5 +43,15 @@ namespace LittleBit.Modules.CameraModule
         
         public float MaxDistance => _MaxDistance;
         public float MinDistance => _MinDistance;
+        public float Sensetivity => _sensetivity;
+
+        public event Action Updated;
+        [SerializeField] private bool _realTimeUpdate;
+
+        private void OnValidate()
+        {
+            if (_realTimeUpdate)
+                Updated?.Invoke();
+        }
     }
 }
