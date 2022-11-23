@@ -29,6 +29,7 @@ public class CameraService : IDisposable
         private float _currZoom;
         private float _startPitchDistance;
         private Vector3 _start;
+        private bool _pinch;
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
                              Transform cameraTarget, BoxCollider cameraBounds, CameraConfig cameraConfig)
@@ -89,7 +90,6 @@ public class CameraService : IDisposable
             DOTween.To(() => _currZoom, x => _currZoom = x, zoomValue, 1)
                 .OnUpdate(() =>
                 {
-                    Debug.Log(_currZoom);
                     switch (_cameraConfig.LensType)
                     {
                         case LensSettings.OverrideModes.Perspective:
@@ -223,22 +223,27 @@ public class CameraService : IDisposable
 
         private void OnPinchStop()
         {
+            _pinch = false;
             _startPitchDistance = 0;
         }
 
         private void OnPinchStart(Vector3 pinchcenter, float pinchdistance)
         {
             _startPitchDistance = pinchdistance;
+            _pinch = true;
         }
 
         private void OnDragStart(Vector3 pos, bool islongtap)
         {
+            if (_cameraConfig.BlockWhileZooming && _pinch) return;
             _startPos = _cameraTarget.position;
             SetBorders();
         }
 
         private void OnDragUpdate(Vector3 dragposstart, Vector3 dragposcurrent, Vector3 correctionoffset)
-        {
+        {            
+            if (_cameraConfig.BlockWhileZooming && _pinch) return;
+            
             var start = GetPointOnPlane(dragposstart);
             var end = GetPointOnPlane(dragposcurrent + correctionoffset);
 
