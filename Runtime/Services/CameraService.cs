@@ -20,7 +20,7 @@ public class CameraService : IDisposable
 
         private readonly Plane _refPlaneXZ = new Plane(new Vector3(0, 1, 0), 0);
         
-        private Vector3? _startPos;
+        private Vector3 _startPos;
         
         private float _pinchStartValue;
         private float _xUpper;
@@ -242,7 +242,6 @@ public class CameraService : IDisposable
             if (_cameraConfig.BlockWhileZooming && _pinch) return;
             _moveTweener?.Kill();
             _startPos = _cameraTarget.position;
-            _lastCameraPosition = null;
             _acceleration = null;
             SetBorders();
             
@@ -264,11 +263,8 @@ public class CameraService : IDisposable
         
         private void OnDragStop(Vector3 dragstoppos, Vector3 dragfinalmomentum)
         {
-            _startPos = null;
-            
             var currentPosition = _cameraTarget.transform.position;
-            if(_lastCameraPosition == null) return;
-            var lastPosition = _lastCameraPosition.Value;
+            var lastPosition = _lastCameraPosition;
            
             
             _acceleration = new Acceleration(currentPosition, lastPosition, Time.deltaTime, _cameraConfig.AccelerationMultiply, _cameraConfig.TimeAccelerationMultiply);
@@ -303,12 +299,12 @@ public class CameraService : IDisposable
             return pos;
         }
 
-        private Vector3? _lastCameraPosition;
+        private Vector3 _lastCameraPosition;
         private Acceleration _acceleration;
             
         private void MoveCamera(Vector3 dragVector)
         {
-            var position = GetPositionWithCheckBorders(_startPos.Value, dragVector);
+            var position = GetPositionWithCheckBorders(_startPos, dragVector);
             _lastCameraPosition = _cameraTarget.position;
             _cameraTarget.position = position;
         }
