@@ -25,7 +25,18 @@ namespace LittleBit.Modules.CameraModule
 
         [SerializeField] private Vector3 _centerBounds = new Vector3(0, 15f, 0);
         [SerializeField] private Vector3 _sizeBounds = new Vector3(60f, 30f, 60f);
-        [SerializeField] private float _sensetivity = 1f;
+        
+        
+        [Tooltip("Мультипликатор чувсвительности. Чем больше, большее расстояние будет проходить камера. При значении 1 камера будет проходить такое же расстояние как палец на экране")]
+        [SerializeField, Range(0, 10)] private float _sensetivity = 1f;
+        
+        [Tooltip("Мультипликатор силы ускорения. Чем больше, тем большее расстояние пройдёт камера после отпускания пальца")]
+        [SerializeField] private float _accelerationMultiply = 5;
+        
+        [Tooltip("Мультипликатор времени ускорения. Чем больше, дольше будет перемещаться камера после отпускания пальца")]
+        [SerializeField] private float _timeAccelerationMultiply = 1;
+        
+        [Tooltip("Блокирует перемещение камеры при зуме")]
         [SerializeField] private bool _blockWhileZooming;
 
         public LensSettings.OverrideModes LensType => _lensType;
@@ -46,7 +57,10 @@ namespace LittleBit.Modules.CameraModule
         public float MinDistance => _MinDistance;
         public float Sensetivity => _sensetivity;
 
+        public float AccelerationMultiply => _accelerationMultiply;
+
         public bool BlockWhileZooming => _blockWhileZooming;
+        public float TimeAccelerationMultiply => _timeAccelerationMultiply;
 
         public event Action Updated;
         [SerializeField] private bool _realTimeUpdate;

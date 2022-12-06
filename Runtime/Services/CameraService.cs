@@ -3,6 +3,7 @@ using Cinemachine;
 using LittleBit.Modules.TouchInput;
 using UnityEngine;
 using DG.Tweening;
+using Zenject;
 
 namespace LittleBit.Modules.CameraModule
 {
@@ -19,7 +20,7 @@ public class CameraService : IDisposable
 
         private readonly Plane _refPlaneXZ = new Plane(new Vector3(0, 1, 0), 0);
         
-        private Vector3 _startPos;
+        private Vector3? _startPos;
         
         private float _pinchStartValue;
         private float _xUpper;
@@ -49,7 +50,7 @@ public class CameraService : IDisposable
             UpdateCamParameters();
             _startPos = _cameraTarget.position;
             SetBorders();
-            CheckBorders(_cameraTarget.position);
+            MoveToPosition(_cameraTarget.position);
         }
 
         private void UnSubscribeOnTouchInputEvents()
@@ -236,7 +237,10 @@ public class CameraService : IDisposable
         private void OnDragStart(Vector3 pos, bool islongtap)
         {
             if (_cameraConfig.BlockWhileZooming && _pinch) return;
+            _moveTweener?.Kill();
             _startPos = _cameraTarget.position;
+            _lastCameraPosition = null;
+            _acceleration = null;
             SetBorders();
         }
 
@@ -249,14 +253,28 @@ public class CameraService : IDisposable
 
             var difference = end - start;
             difference *= _cameraConfig.Sensetivity;
-            CheckBorders(difference);
+            
+            MoveCamera(difference);
         }
+        
         
         private void OnDragStop(Vector3 dragstoppos, Vector3 dragfinalmomentum)
         {
+            _startPos = null;
+            var currentPosition = _cameraTarget.transform.position;
+            var lastPosition = _lastCameraPosition.Value;
+           
             
-        }
+            _acceleration = new Acceleration(currentPosition, lastPosition, Time.deltaTime, _cameraConfig.AccelerationMultiply, _cameraConfig.TimeAccelerationMultiply);
+            
+            Vector3 target = _acceleration.TargetPosition;
+            _moveTweener = DOVirtual.Vector3(_cameraTarget.position, target, _acceleration.TargetTime, (value) =>
+            {
+                MoveCamera(Vector3.zero, -value);
+            });
 
+        }
+        
         private Vector3 GetPointOnPlane(Vector3 dragposstart)
         {
             Ray ray = _camera.ScreenPointToRay(dragposstart);
@@ -270,14 +288,30 @@ public class CameraService : IDisposable
             return point;
         }
 
-        private void CheckBorders(Vector3 dragVector)
+        private Vector3 GetPositionWithCheckBorders(Vector3 startPos, Vector3 dragVector)
         {
-            var pos = _startPos - dragVector;
-
+            var pos = startPos - dragVector;
+            
             pos.x = Mathf.Clamp(pos.x, _xLower, _xUpper);
             pos.z = Mathf.Clamp(pos.z, _zLower, _zUpper);
+            return pos;
+        }
+
+        private Vector3? _lastCameraPosition;
+        private Acceleration _acceleration;
             
-            _cameraTarget.position = pos;
+        private void MoveCamera(Vector3 dragVector)
+        {
+            var position = GetPositionWithCheckBorders(_startPos.Value, dragVector);
+            _lastCameraPosition = _cameraTarget.position;
+            _cameraTarget.position = position;
+        }
+
+        private void MoveCamera(Vector3 startPos, Vector3 dragVector)
+        {
+            var position = GetPositionWithCheckBorders(startPos, dragVector);
+            _lastCameraPosition = _cameraTarget.position;
+            _cameraTarget.position = position;
         }
 
         private void SetBorders()
@@ -304,5 +338,49 @@ public class CameraService : IDisposable
         {
             UnSubscribeOnTouchInputEvents();
         }
+
+        private Tweener _moveTweener;
+        
+        internal class Acceleration
+        {
+            private readonly float _accelerationMultiply;
+            private readonly float _timeAccelerationMultiply;
+            private readonly float _acceleration;
+            private readonly Vector3 _direction;
+            private readonly float _distance;
+            
+
+            public readonly float TargetDistance;
+            private readonly Vector3 _targetPosition;
+            private readonly float _speed;
+            private readonly float _targetTime;
+
+            public Vector3 TargetPosition => _targetPosition;
+
+            public float TargetTime => _targetTime * _timeAccelerationMultiply;
+
+            public Acceleration(Vector3 currentPosition, Vector3 lastPosition, float time,
+                float accelerationMultiply,
+                float timeAccelerationMultiply)
+            {
+                _accelerationMultiply = accelerationMultiply;
+                _timeAccelerationMultiply = timeAccelerationMultiply;
+                var difference = currentPosition - lastPosition;
+                _direction = difference.normalized;
+                _distance = difference.magnitude;
+
+                _speed = _distance / time;
+                
+
+                _acceleration = _distance / (time * time);
+
+                TargetDistance = _distance * _accelerationMultiply;
+
+                _targetPosition = currentPosition + TargetDistance * _direction;
+                
+                _targetTime = TargetDistance / _speed;
+            }
+        }
     }
+
 }
