@@ -370,17 +370,22 @@ public class CameraService : IDisposable
                 var difference = currentPosition - lastPosition;
                 _direction = difference.normalized;
                 _distance = difference.magnitude;
-
+                
+                if (time == 0)
+                    time = 0.1f;
+                        
                 _speed = _distance / time;
                 
-
                 _acceleration = _distance / (time * time);
 
                 TargetDistance = _distance * _accelerationMultiply;
 
                 _targetPosition = currentPosition + TargetDistance * _direction;
-                
-                _targetTime = TargetDistance / _speed;
+
+                if (_speed != 0)
+                    _targetTime = TargetDistance / _speed;
+                else
+                    _targetTime = 0.1f;
             }
         }
     }
