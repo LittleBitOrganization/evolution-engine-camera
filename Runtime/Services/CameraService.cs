@@ -55,7 +55,7 @@ public class CameraService : IDisposable
 
         private void UnSubscribeOnTouchInputEvents()
         {
-            _touchInputService.OnInputClick -= OnClick;
+            _touchInputService.OnInputClickDown -= OnClick;
             _touchInputService.OnDragStart -= OnDragStart;
             _touchInputService.OnDragUpdate -= OnDragUpdate;
             _touchInputService.OnDragStop -= OnDragStop;
@@ -156,7 +156,7 @@ public class CameraService : IDisposable
 
         private void SubscribeOnTouchInputEvents()
         {
-            _touchInputService.OnInputClick += OnClick;
+            _touchInputService.OnInputClickDown += OnClick;
             _touchInputService.OnDragStart += OnDragStart;
             _touchInputService.OnDragUpdate += OnDragUpdate;
             _touchInputService.OnDragStop += OnDragStop;
@@ -169,6 +169,8 @@ public class CameraService : IDisposable
             _touchInputService.OnPinchUpdateExtended += OnPinchUpdate;
 #endif
         }
+
+        
 
 
         private void OnVirtualZoom(float mouseDelta)
@@ -192,10 +194,11 @@ public class CameraService : IDisposable
                     break;
             }
         }
-
-        private void OnClick(Vector3 clickposition, bool isdoubleclick, bool islongtap)
+        
+        
+        private void OnClick(Vector3 pos)
         {
-            
+            _moveTweener?.Kill();
         }
 
         private void OnPinchUpdate(PinchUpdateData pinchupdatedata)
@@ -242,6 +245,7 @@ public class CameraService : IDisposable
             _lastCameraPosition = null;
             _acceleration = null;
             SetBorders();
+            
         }
 
         private void OnDragUpdate(Vector3 dragposstart, Vector3 dragposcurrent, Vector3 correctionoffset)
@@ -261,7 +265,9 @@ public class CameraService : IDisposable
         private void OnDragStop(Vector3 dragstoppos, Vector3 dragfinalmomentum)
         {
             _startPos = null;
+            
             var currentPosition = _cameraTarget.transform.position;
+            if(_lastCameraPosition == null) return;
             var lastPosition = _lastCameraPosition.Value;
            
             

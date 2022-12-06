@@ -25,7 +25,7 @@ MonoBehaviour:
   _centerBounds: {x: 0, y: 15, z: 0}
   _sizeBounds: {x: 300, y: 30, z: 300}
   _sensetivity: 1
-  _accelerationMultiply: 0
-  _timeAccelerationMultiply: 1
+  _accelerationMultiply: 7
+  _timeAccelerationMultiply: 5
   _blockWhileZooming: 0
   _realTimeUpdate: 1
