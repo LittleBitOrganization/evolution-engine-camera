@@ -3,7 +3,6 @@ using Cinemachine;
 using LittleBit.Modules.TouchInput;
 using UnityEngine;
 using DG.Tweening;
-using Zenject;
 
 namespace LittleBit.Modules.CameraModule
 {
@@ -31,6 +30,8 @@ public class CameraService : IDisposable
         private float _startPitchDistance;
         private Vector3 _start;
         private bool _pinch;
+        
+        public bool Enabled { get; private set; }
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
                              Transform cameraTarget, BoxCollider cameraBounds, CameraConfig cameraConfig)
@@ -45,8 +46,8 @@ public class CameraService : IDisposable
 
             _transposer = _virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
             _recomposer = _virtualCamera.GetComponentInChildren<CinemachineRecomposer>();
-            
-            SubscribeOnTouchInputEvents();
+
+            EnableCam();
             UpdateCamParameters();
             _startPos = _cameraTarget.position;
             SetBorders();
@@ -56,25 +57,34 @@ public class CameraService : IDisposable
         private void UnSubscribeOnTouchInputEvents()
         {
             _touchInputService.OnInputClickDown -= OnClick;
-            _touchInputService.OnDragStart -= OnDragStart;
-            _touchInputService.OnDragUpdate -= OnDragUpdate;
-            _touchInputService.OnDragStop -= OnDragStop;
-            _touchInputService.OnMouseZoom -= OnVirtualZoom;
-            _touchInputService.OnPinchStart -= OnPinchStart;
-            _touchInputService.OnPinchStop -= OnPinchStop;
-            _touchInputService.OnPinchUpdateExtended -= OnPinchUpdate;
+                _touchInputService.OnDragStart -= OnDragStart;
+                _touchInputService.OnDragUpdate -= OnDragUpdate;
+                _touchInputService.OnDragStop -= OnDragStop;
+                _touchInputService.OnMouseZoom -= OnVirtualZoom;
+                _touchInputService.OnPinchStart -= OnPinchStart;
+                _touchInputService.OnPinchStop -= OnPinchStop;
+                _touchInputService.OnPinchUpdateExtended -= OnPinchUpdate;
+            
         }
 
         public void DisableCam()
         {
-            _moveTweener?.Kill();
-            UnSubscribeOnTouchInputEvents();
+            if (Enabled)
+            {
+                Enabled = false;
+                _moveTweener?.Kill();
+                UnSubscribeOnTouchInputEvents();
+            }
         }
 
         public void EnableCam()
         {
-            _moveTweener?.Kill();
-            SubscribeOnTouchInputEvents();
+            if (Enabled == false)
+            {
+                Enabled = true;
+                _moveTweener?.Kill();
+                SubscribeOnTouchInputEvents();
+            }
         }
         
         public void SetZoom(float value)
@@ -310,6 +320,7 @@ public class CameraService : IDisposable
             
         private void MoveCamera(Vector3 dragVector)
         {
+           
             var position = GetPositionWithCheckBorders(_startPos, dragVector);
             _lastCameraPosition = _cameraTarget.position;
             _cameraTarget.position = position;
@@ -317,6 +328,7 @@ public class CameraService : IDisposable
 
         private void MoveCamera(Vector3 startPos, Vector3 dragVector)
         {
+            
             var position = GetPositionWithCheckBorders(startPos, dragVector);
             _lastCameraPosition = _cameraTarget.position;
             _cameraTarget.position = position;
@@ -344,7 +356,7 @@ public class CameraService : IDisposable
 
         public void Dispose()
         {
-            UnSubscribeOnTouchInputEvents();
+            DisableCam();
         }
 
         private Tweener _moveTweener;
