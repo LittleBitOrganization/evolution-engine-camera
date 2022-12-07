@@ -67,11 +67,13 @@ public class CameraService : IDisposable
 
         public void DisableCam()
         {
+            _moveTweener?.Kill();
             UnSubscribeOnTouchInputEvents();
         }
 
         public void EnableCam()
         {
+            _moveTweener?.Kill();
             SubscribeOnTouchInputEvents();
         }
         
@@ -105,6 +107,7 @@ public class CameraService : IDisposable
 
         public void MoveToPosition(Vector3 position)
         {
+            _moveTweener?.Kill();
             _startPos = _cameraTarget.position;
             SetBorders();
             
@@ -239,8 +242,9 @@ public class CameraService : IDisposable
 
         private void OnDragStart(Vector3 pos, bool islongtap)
         {
-            if (_cameraConfig.BlockWhileZooming && _pinch) return;
             _moveTweener?.Kill();
+            if (_cameraConfig.BlockWhileZooming && _pinch) return;
+          
             _startPos = _cameraTarget.position;
             _acceleration = null;
             SetBorders();
@@ -249,7 +253,9 @@ public class CameraService : IDisposable
 
         private void OnDragUpdate(Vector3 dragposstart, Vector3 dragposcurrent, Vector3 correctionoffset)
         {            
+            _moveTweener?.Kill();
             if (_cameraConfig.BlockWhileZooming && _pinch) return;
+           
             
             var start = GetPointOnPlane(dragposstart);
             var end = GetPointOnPlane(dragposcurrent + correctionoffset);
