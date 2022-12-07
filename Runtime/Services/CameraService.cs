@@ -30,8 +30,8 @@ public class CameraService : IDisposable
         private float _startPitchDistance;
         private Vector3 _start;
         private bool _pinch;
-        
-        public bool Enabled { get; private set; }
+
+        public bool Enabled { get; private set; } = false;
 
         public CameraService(Camera camera, CinemachineVirtualCamera virtualCamera, TouchInputService touchInputService,
                              Transform cameraTarget, BoxCollider cameraBounds, CameraConfig cameraConfig)
