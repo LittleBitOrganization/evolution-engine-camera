@@ -127,6 +127,27 @@ public class CameraService : IDisposable
 
             _cameraTarget.position = position;
         }
+	
+	public void SmoothMoveToPosition(Vector3 position, float duration)
+        {
+            //_cameraTarget.DOKill();
+            _startPos = _cameraTarget.position;
+            SetBorders();
+            position.y = _cameraTarget.position.y;
+            position.x = Mathf.Clamp(position.x, _xLower, _xUpper);
+            position.z = Mathf.Clamp(position.z, _zLower, _zUpper);
+            
+            _cameraTarget.DOMove(position,duration);
+        }
+
+        public void SetSceenY(float value)
+        {
+            value = Mathf.Clamp(value, 0, 1);
+            DOVirtual.Float(_transposer.m_ScreenY,value,1f, (x) =>
+            {
+                _transposer.m_ScreenY = x;
+            });
+        }
 
         private Vector3 CalculateDistance(float distance)
         {
