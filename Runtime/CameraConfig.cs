@@ -70,5 +70,31 @@ namespace LittleBit.Modules.CameraModule
             if (_realTimeUpdate)
                 Updated?.Invoke();
         }
+
+        public void SetFollowSmooth(float value)
+        {
+            _followSmooth = value;
+            if(_realTimeUpdate)
+                Updated?.Invoke();
+        }
+
+        public void SetDamping(float value)
+        {
+            _damping = value;
+            if(_realTimeUpdate)
+                Updated?.Invoke();
+        }
+
+        public void SetAccelerationMultiply(float value)
+        {
+            _accelerationMultiply = value;
+        }
+
+        public void SetTimeAccelerationMultiply(float value)
+        {
+            _timeAccelerationMultiply = value;
+        }
     }
+
+   
 }
